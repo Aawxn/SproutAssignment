@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
 /// Singleton audio service — preloads all UI sound effects and
@@ -127,36 +128,55 @@ class AudioService {
   // ─── Public Sound API ─────────────────────────────────────────
 
   /// Immediate gentle pop — plays on every valid tap (≤50ms latency target)
-  Future<void> playTapAck() => _playTone(660, 80, volume: 0.5);
+  Future<void> playTapAck() async {
+    HapticFeedback.lightImpact();
+    await _playTone(660, 80, volume: 0.5);
+  }
 
   /// Two ascending notes — plays before celebration animation
   Future<void> playCorrect() async {
+    HapticFeedback.mediumImpact();
     await _playTone(523, 150);
     await Future.delayed(const Duration(milliseconds: 90));
+    HapticFeedback.mediumImpact();
     await _playTone(659, 200);
   }
 
   /// Soft descending boing — gentle "try again" (never harsh)
-  Future<void> playTryAgain() => _playTone(330, 250, volume: 0.55);
+  Future<void> playTryAgain() async {
+    HapticFeedback.lightImpact();
+    await Future.delayed(const Duration(milliseconds: 100));
+    HapticFeedback.lightImpact();
+    await _playTone(330, 250, volume: 0.55);
+  }
 
   /// 4-note ascending melody — full completion celebration
   Future<void> playCelebrate() async {
+    HapticFeedback.mediumImpact();
     await _playTone(523, 120);
     await Future.delayed(const Duration(milliseconds: 70));
+    HapticFeedback.mediumImpact();
     await _playTone(587, 120);
     await Future.delayed(const Duration(milliseconds: 70));
+    HapticFeedback.mediumImpact();
     await _playTone(659, 120);
     await Future.delayed(const Duration(milliseconds: 70));
+    HapticFeedback.mediumImpact();
     await _playTone(784, 300);
   }
 
   /// Bud's idle chirp — played every ~10s by the mascot widget
-  Future<void> playBudChirp() => _playTone(880, 55, volume: 0.28);
+  Future<void> playBudChirp() async {
+    HapticFeedback.selectionClick();
+    await _playTone(880, 55, volume: 0.28);
+  }
 
   /// Parental gate: success sound
   Future<void> playGatePass() async {
+    HapticFeedback.mediumImpact();
     await _playTone(440, 100);
     await Future.delayed(const Duration(milliseconds: 60));
+    HapticFeedback.mediumImpact();
     await _playTone(880, 200);
   }
 
