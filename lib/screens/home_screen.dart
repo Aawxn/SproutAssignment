@@ -198,11 +198,11 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    "What shall\nwe learn?",
+                    "What shall we learn?",
                     style: kTitleStyle.copyWith(
-                      fontSize: (height * 0.14).clamp(18.0, 26.0),
+                      fontSize: (height * 0.12).clamp(16.0, 22.0),
                     ),
-                    maxLines: 2,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],

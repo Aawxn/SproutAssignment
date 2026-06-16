@@ -63,10 +63,25 @@ Before the camera or the Parent Zone dashboard can activate, the app presents a 
 2. **Hold Task:** Holding a designated button for 5 continuous seconds.
 *Toddlers cannot sustain 5-second presses or follow precise sequence cards, preventing accidental settings tweaks or camera activations.*
 
-### On-Device Machine Learning (Task 4)
+### On-Device Machine Learning & Future Scaling (Task 4)
 The **Explorer Activity** uses the device camera to identify real-world objects.
-* **100% Offline:** Inference is processed fully on-device via `google_mlkit_image_labeling`. No images, audio, or labels ever leave the device.
-* **Child-Friendly Filtering:** In [ml_label_service.dart](lib/services/ml_label_service.dart), we filter ML Kit categories using a strict whitelist (`dog`, `cat`, `flower`, `book`, `hand`, `face`, `cup`, `chair`). Boring developer/office objects (keyboards, laptops, cables) are ignored.
+* **100% Offline & Free:** Inference is processed fully on-device via `google_mlkit_image_labeling`. No network connection is needed, making it privacy-by-design (COPPA/GDPR-K aligned) and incurring zero API costs.
+* **Strict Toddler-Safe Whitelist:** To filter out developer/office clutter, we only surface child-friendly categories whitelisted in [ml_label_service.dart](lib/services/ml_label_service.dart):
+  * **Animals:** `🐕 Dog`, `🐱 Cat`, `🐦 Bird`, `🐟 Fish`
+  * **Nature:** `🌸 Flower`, `🌳 Tree`, `🌱 Plant`, `☁️ Cloud`
+  * **Everyday Objects:** `🚗 Car`, `📚 Book`, `⚽ Ball`, `🍎 Apple`, `🍌 Banana`, `✋ Hand`
+  *(Tip: Test the Explorer mode on these specific items or images of them for instant detection!)*
+
+#### 💡 How to Make Explorer Mode Smarter (Roadmap)
+The default bundled on-device ML Kit model is small (~3.5 MB) to ensure fast, low-latency execution on low-end mobile devices, meaning it won't recognize everything. To make it smarter, we have two primary architectural options:
+1. **Google Cloud Vision API (Cloud-Based):**
+   * *How:* Send image frames to Google Cloud's Vision API or Gemini Multimodal API.
+   * *Pros:* Near-perfect accuracy, detects thousands of specific objects, colors, and spatial descriptions.
+   * *Cons:* Requires internet connectivity (breaks in offline environments like airplanes/roadtrips), has ongoing API call costs, and introduces latency. It also requires strict privacy/COPPA design (images must be processed securely and discarded immediately).
+2. **Custom Local TFLite Model (On-Device):**
+   * *How:* Load a custom-trained TensorFlow Lite (TFLite) classification or object detection model (e.g. trained specifically on kids' toys, colored blocks, and shapes) using ML Kit's custom model loader.
+   * *Pros:* Maintains 100% offline compliance, runs with sub-100ms latency, zero API costs, and preserves absolute privacy.
+   * *Cons:* Increases the app bundle size by the size of the `.tflite` model (typically 15-40 MB).
 
 ### 📊 Grown-Ups Dashboard (Parent Zone)
 Accessible via the Parental Gate from the home screen, the **Grown-Ups Dashboard** ([parent_dashboard_screen.dart](lib/screens/parent_dashboard_screen.dart)) enables parents to:
