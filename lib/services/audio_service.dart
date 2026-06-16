@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'storage_service.dart';
 
 /// Singleton audio service — preloads all UI sound effects and
 /// provides TTS for spoken feedback. No latency on first play.
@@ -116,6 +117,7 @@ class AudioService {
 
   Future<void> _playTone(double frequency, int durationMs,
       {double volume = 0.7}) async {
+    if (!StorageService.instance.isSoundEnabled()) return;
     try {
       final player = _getFreePlayer();
       final wav = _generateSineWave(frequency, durationMs, volume: volume);
@@ -129,54 +131,78 @@ class AudioService {
 
   /// Immediate gentle pop — plays on every valid tap (≤50ms latency target)
   Future<void> playTapAck() async {
-    HapticFeedback.lightImpact();
+    if (StorageService.instance.isHapticsEnabled()) {
+      HapticFeedback.lightImpact();
+    }
     await _playTone(660, 80, volume: 0.5);
   }
 
   /// Two ascending notes — plays before celebration animation
   Future<void> playCorrect() async {
-    HapticFeedback.mediumImpact();
+    if (StorageService.instance.isHapticsEnabled()) {
+      HapticFeedback.mediumImpact();
+    }
     await _playTone(523, 150);
     await Future.delayed(const Duration(milliseconds: 90));
-    HapticFeedback.mediumImpact();
+    if (StorageService.instance.isHapticsEnabled()) {
+      HapticFeedback.mediumImpact();
+    }
     await _playTone(659, 200);
   }
 
   /// Soft descending boing — gentle "try again" (never harsh)
   Future<void> playTryAgain() async {
-    HapticFeedback.lightImpact();
+    if (StorageService.instance.isHapticsEnabled()) {
+      HapticFeedback.lightImpact();
+    }
     await Future.delayed(const Duration(milliseconds: 100));
-    HapticFeedback.lightImpact();
+    if (StorageService.instance.isHapticsEnabled()) {
+      HapticFeedback.lightImpact();
+    }
     await _playTone(330, 250, volume: 0.55);
   }
 
   /// 4-note ascending melody — full completion celebration
   Future<void> playCelebrate() async {
-    HapticFeedback.mediumImpact();
+    if (StorageService.instance.isHapticsEnabled()) {
+      HapticFeedback.mediumImpact();
+    }
     await _playTone(523, 120);
     await Future.delayed(const Duration(milliseconds: 70));
-    HapticFeedback.mediumImpact();
+    if (StorageService.instance.isHapticsEnabled()) {
+      HapticFeedback.mediumImpact();
+    }
     await _playTone(587, 120);
     await Future.delayed(const Duration(milliseconds: 70));
-    HapticFeedback.mediumImpact();
+    if (StorageService.instance.isHapticsEnabled()) {
+      HapticFeedback.mediumImpact();
+    }
     await _playTone(659, 120);
     await Future.delayed(const Duration(milliseconds: 70));
-    HapticFeedback.mediumImpact();
+    if (StorageService.instance.isHapticsEnabled()) {
+      HapticFeedback.mediumImpact();
+    }
     await _playTone(784, 300);
   }
 
   /// Bud's idle chirp — played every ~10s by the mascot widget
   Future<void> playBudChirp() async {
-    HapticFeedback.selectionClick();
+    if (StorageService.instance.isHapticsEnabled()) {
+      HapticFeedback.selectionClick();
+    }
     await _playTone(880, 55, volume: 0.28);
   }
 
   /// Parental gate: success sound
   Future<void> playGatePass() async {
-    HapticFeedback.mediumImpact();
+    if (StorageService.instance.isHapticsEnabled()) {
+      HapticFeedback.mediumImpact();
+    }
     await _playTone(440, 100);
     await Future.delayed(const Duration(milliseconds: 60));
-    HapticFeedback.mediumImpact();
+    if (StorageService.instance.isHapticsEnabled()) {
+      HapticFeedback.mediumImpact();
+    }
     await _playTone(880, 200);
   }
 
@@ -184,6 +210,7 @@ class AudioService {
 
   /// Speak text with child-friendly TTS settings
   Future<void> speak(String text) async {
+    if (!StorageService.instance.isSoundEnabled()) return;
     await _tts.stop();
     await _tts.speak(text);
   }

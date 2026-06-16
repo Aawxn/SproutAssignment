@@ -149,7 +149,7 @@ class _CountingScreenState extends State<CountingScreen>
     if (_round >= _totalRounds) {
       // analytics.logEvent('activity_completed', {'duration_seconds': context.read<ActivityProvider>().elapsedSeconds, 'score': context.read<ActivityProvider>().score});
       // analytics.logEvent('reward_shown', {'activity': 'counting'});
-      context.read<ActivityProvider>().completeActivity();
+      context.read<ActivityProvider>().completeActivity('counting');
       await AudioService.instance.playCelebrate();
       setState(() {
         _budState = BudState.celebrating;

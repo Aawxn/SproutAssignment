@@ -124,7 +124,7 @@ class _LetterTraceScreenState extends State<LetterTraceScreen>
     if (_letterIndex >= _sequence.length) {
       // analytics.logEvent('activity_completed', {'duration_seconds': context.read<ActivityProvider>().elapsedSeconds});
       // analytics.logEvent('reward_shown', {'activity': 'letter_tracing'});
-      context.read<ActivityProvider>().completeActivity();
+      context.read<ActivityProvider>().completeActivity('trace');
       await AudioService.instance.playCelebrate();
       setState(() {
         _budState = BudState.celebrating;

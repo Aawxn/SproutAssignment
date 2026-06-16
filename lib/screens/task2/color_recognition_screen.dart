@@ -114,7 +114,7 @@ class _ColorRecognitionScreenState extends State<ColorRecognitionScreen>
     if (_round >= _totalRounds) {
       // analytics.logEvent('activity_completed', {'duration_seconds': provider.elapsedSeconds});
       // analytics.logEvent('reward_shown', {'activity': 'color_recognition'});
-      provider.completeActivity();
+      provider.completeActivity('colors');
       await AudioService.instance.playCelebrate();
       if (!mounted) return;
       setState(() {

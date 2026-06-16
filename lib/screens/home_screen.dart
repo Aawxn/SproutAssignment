@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/activity_provider.dart';
 import '../services/audio_service.dart';
+import '../services/storage_service.dart';
 import '../theme/sprout_theme.dart';
 import '../widgets/mascot/bud_mascot.dart';
 import 'task2/shape_match_screen.dart';
@@ -11,6 +12,7 @@ import 'task2/color_recognition_screen.dart';
 import 'task2/letter_trace_screen.dart';
 import 'task2/animal_sound_screen.dart';
 import 'task4/parental_gate_screen.dart';
+import 'parent_dashboard_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,10 +25,54 @@ class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   BudState _budState = BudState.idle;
   late final AnimationController _staggerCtrl;
+  int _cumulativeScore = 0;
+  List<String> _completedTags = [];
+
+  void _updateScore() {
+    setState(() {
+      _cumulativeScore = StorageService.instance.getCumulativeScore();
+      _completedTags = StorageService.instance.getCompletedActivities();
+    });
+  }
+
+  String _getStorageTag(String actTag) {
+    switch (actTag) {
+      case 'shape_match': return 'shapes';
+      case 'letter_tracing': return 'trace';
+      case 'counting': return 'counting';
+      case 'color_recognition': return 'colors';
+      case 'animal_sounds': return 'animals';
+      case 'camera': return 'camera';
+      default: return actTag;
+    }
+  }
+
+  void _openParentZone() async {
+    await AudioService.instance.playTapAck();
+    if (!mounted) return;
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ParentalGateScreen(
+          onPassed: () {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (_) => const ParentDashboardScreen(),
+              ),
+            ).then((_) {
+              _updateScore();
+            });
+          },
+        ),
+      ),
+    ).then((_) {
+      _updateScore();
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    _updateScore();
     _staggerCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
@@ -86,6 +132,7 @@ class _HomeScreenState extends State<HomeScreen>
       ),
     );
 
+    _updateScore();
     if (mounted) setState(() => _budState = BudState.idle);
   }
 
@@ -161,6 +208,78 @@ class _HomeScreenState extends State<HomeScreen>
                 ],
               ),
             ),
+            const SizedBox(width: kSpacingS),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                // Star Badge
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: kCountColor.withValues(alpha: 0.5),
+                      width: 2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: kCountColor.withValues(alpha: 0.1),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text('⭐', style: TextStyle(fontSize: 15)),
+                      const SizedBox(width: 4),
+                      Text(
+                        '$_cumulativeScore',
+                        style: GoogleFonts.nunito(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w900,
+                          color: kTextDark,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 6),
+                // Parental zone button
+                GestureDetector(
+                  onTap: _openParentZone,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.8),
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(
+                        color: kOrange.withValues(alpha: 0.3),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text('🔒', style: TextStyle(fontSize: 11)),
+                        const SizedBox(width: 3),
+                        Text(
+                          'Parents',
+                          style: GoogleFonts.nunito(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            color: kOrange,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -200,6 +319,7 @@ class _HomeScreenState extends State<HomeScreen>
             ).animate(anim),
             child: _ActivityCard(
               act: _activities[i],
+              isCompleted: _completedTags.contains(_getStorageTag(_activities[i].tag)),
               onTap: () => _onTap(_activities[i]),
             ),
           ),
@@ -211,9 +331,14 @@ class _HomeScreenState extends State<HomeScreen>
 
 // ─── Activity Card ───────────────────────────────────────────────────────────
 class _ActivityCard extends StatefulWidget {
-  const _ActivityCard({required this.act, required this.onTap});
+  const _ActivityCard({
+    required this.act,
+    required this.onTap,
+    required this.isCompleted,
+  });
   final _Act act;
   final VoidCallback onTap;
+  final bool isCompleted;
 
   @override
   State<_ActivityCard> createState() => _ActivityCardState();
@@ -284,7 +409,7 @@ class _ActivityCardState extends State<_ActivityCard>
                 ),
               ),
 
-              // Lock badge
+              // Lock / Completion badge
               if (act.locked)
                 Positioned(
                   top: 8, right: 8,
@@ -295,6 +420,25 @@ class _ActivityCardState extends State<_ActivityCard>
                       shape: BoxShape.circle,
                     ),
                     child: const Text('🔒', style: TextStyle(fontSize: 11)),
+                  ),
+                )
+              else if (widget.isCompleted)
+                Positioned(
+                  top: 8, right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Text(
+                      '✓',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: kSproutGreen,
+                      ),
+                    ),
                   ),
                 ),
 

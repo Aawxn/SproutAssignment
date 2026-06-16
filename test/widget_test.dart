@@ -6,5 +6,8 @@ void main() {
     await tester.pumpWidget(const SproutApp());
     // Basic smoke test — app builds without throwing
     expect(find.byType(SproutApp), findsOneWidget);
+    
+    // Pump frames to let the home screen initial greeting timers complete
+    await tester.pump(const Duration(milliseconds: 1200));
   });
 }

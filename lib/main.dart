@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'screens/home_screen.dart';
 import 'services/audio_service.dart';
+import 'services/storage_service.dart';
 import 'theme/sprout_theme.dart';
 
 void main() async {
@@ -21,8 +22,9 @@ void main() async {
     ),
   );
 
-  // Pre-warm audio service before first interaction
+  // Pre-warm audio and storage services before first interaction
   await AudioService.instance.init();
+  await StorageService.instance.init();
 
   runApp(const SproutApp());
 }

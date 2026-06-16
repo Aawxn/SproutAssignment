@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/storage_service.dart';
 
 /// Shared activity state — tracks score, attempts, and completion.
 /// Kept intentionally thin: only state, no UI logic.
@@ -34,9 +35,13 @@ class ActivityProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void completeActivity() {
+  Future<void> completeActivity(String tag) async {
     _isComplete = true;
     notifyListeners();
+    try {
+      await StorageService.instance.addScore(_score);
+      await StorageService.instance.markActivityComplete(tag);
+    } catch (_) {}
   }
 
   void reset() {

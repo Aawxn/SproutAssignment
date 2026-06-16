@@ -114,7 +114,7 @@ class _AnimalSoundScreenState extends State<AnimalSoundScreen>
       await Future.delayed(const Duration(milliseconds: 300));
       await AudioService.instance.playCelebrate();
       if (!mounted) return;
-      provider.completeActivity();
+      provider.completeActivity('animals');
       setState(() {
         _budState = BudState.celebrating;
         _showCelebration = true;

@@ -24,7 +24,9 @@ import 'camera_screen.dart';
 /// Privacy note: This gate prevents accidental camera activation by
 /// unsupervised toddlers, aligning with COPPA/GDPR-K requirements.
 class ParentalGateScreen extends StatefulWidget {
-  const ParentalGateScreen({super.key});
+  const ParentalGateScreen({super.key, this.onPassed});
+
+  final VoidCallback? onPassed;
 
   @override
   State<ParentalGateScreen> createState() => _ParentalGateScreenState();
@@ -144,10 +146,15 @@ class _ParentalGateScreenState extends State<ParentalGateScreen>
     // analytics.logEvent('parental_gate_passed');
     setState(() => _budState = BudState.celebrating);
     await AudioService.instance.playGatePass();
-    await AudioService.instance.speak('Great job! Opening the camera!');
+    await AudioService.instance.speak('Great job!');
     await Future.delayed(const Duration(milliseconds: 1200));
 
     if (!mounted) return;
+    if (widget.onPassed != null) {
+      widget.onPassed!();
+      return;
+    }
+
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (_) => ChangeNotifierProvider(

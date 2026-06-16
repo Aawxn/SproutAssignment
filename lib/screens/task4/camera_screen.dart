@@ -242,7 +242,7 @@ class _CameraScreenState extends State<CameraScreen>
     if (_found >= _goal) {
       await AudioService.instance.playCelebrate();
       if (!mounted) return;
-      provider.completeActivity();
+      provider.completeActivity('camera');
       setState(() => _showCelebration = true);
     } else {
       await Future.delayed(const Duration(milliseconds: 700));

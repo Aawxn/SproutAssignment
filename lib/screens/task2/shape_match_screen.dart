@@ -127,7 +127,7 @@ class _ShapeMatchScreenState extends State<ShapeMatchScreen>
     if (_round >= _totalRounds) {
       // analytics.logEvent('activity_completed', {'duration_seconds': provider.elapsedSeconds, 'score': provider.score});
       // analytics.logEvent('reward_shown', {'activity': 'shape_match'});
-      provider.completeActivity();
+      provider.completeActivity('shapes');
       await AudioService.instance.playCelebrate();
       if (!mounted) return;
       setState(() {
