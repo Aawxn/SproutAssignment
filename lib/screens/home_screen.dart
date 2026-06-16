@@ -167,121 +167,125 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildHeader(double height) {
-    return SizedBox(
+    return Container(
       height: height,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: kSpacingL),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Bud mascot — size relative to header height
-            BudMascot(
-              state: _budState,
-              size: (height * 0.62).clamp(70.0, 100.0),
-            ),
-            const SizedBox(width: kSpacingM),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Hello, Explorer! 🌱',
-                    style: GoogleFonts.nunito(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: kSproutGreenDark,
-                      letterSpacing: 0.5,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+      padding: const EdgeInsets.symmetric(horizontal: kSpacingL),
+      child: Column(
+        children: [
+          const SizedBox(height: 8),
+          // Top Stats & Actions Bar
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Star Badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(
+                    color: kCountColor.withValues(alpha: 0.5),
+                    width: 1.5,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    "What shall we learn?",
-                    style: kTitleStyle.copyWith(
-                      fontSize: (height * 0.12).clamp(16.0, 22.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: kCountColor.withValues(alpha: 0.1),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: kSpacingS),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                // Star Badge
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: kCountColor.withValues(alpha: 0.5),
-                      width: 2,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: kCountColor.withValues(alpha: 0.1),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('⭐', style: TextStyle(fontSize: 14)),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$_cumulativeScore',
+                      style: GoogleFonts.nunito(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900,
+                        color: kTextDark,
                       ),
-                    ],
+                    ),
+                  ],
+                ),
+              ),
+              // Parental zone button
+              GestureDetector(
+                onTap: _openParentZone,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.8),
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(
+                      color: kOrange.withValues(alpha: 0.3),
+                      width: 1.5,
+                    ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text('⭐', style: TextStyle(fontSize: 15)),
-                      const SizedBox(width: 4),
+                      const Text('🔒', style: TextStyle(fontSize: 11)),
+                      const SizedBox(width: 3),
                       Text(
-                        '$_cumulativeScore',
+                        'Parents',
                         style: GoogleFonts.nunito(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w900,
-                          color: kTextDark,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: kOrange,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 6),
-                // Parental zone button
-                GestureDetector(
-                  onTap: _openParentZone,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.8),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                        color: kOrange.withValues(alpha: 0.3),
-                        width: 1.5,
+              ),
+            ],
+          ),
+          const Spacer(),
+          // Main Mascot + Greeting Row
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Bud mascot — size relative to header height
+              BudMascot(
+                state: _budState,
+                size: (height * 0.52).clamp(60.0, 85.0),
+              ),
+              const SizedBox(width: kSpacingM),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Hello, Explorer! 🌱',
+                      style: GoogleFonts.nunito(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: kSproutGreenDark,
+                        letterSpacing: 0.5,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text('🔒', style: TextStyle(fontSize: 11)),
-                        const SizedBox(width: 3),
-                        Text(
-                          'Parents',
-                          style: GoogleFonts.nunito(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800,
-                            color: kOrange,
-                          ),
-                        ),
-                      ],
+                    const SizedBox(height: 1),
+                    Text(
+                      "What shall we learn?",
+                      style: kTitleStyle.copyWith(
+                        fontSize: (height * 0.12).clamp(18.0, 24.0),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+        ],
       ),
     );
   }
